@@ -13,7 +13,7 @@ router.post('/', validateUser, async (req, res, next) => {
   }
 })
 
-router.post('/:id/posts', validateUserId, async(req, res, next) => {
+router.post('/:id/posts', validateUserId(), async(req, res, next) => {
   const newPosts = { ...req.body, user_id: req.params.id}
   try {
     const post = await postDb.insert(newPosts)
@@ -36,13 +36,13 @@ router.get('/:id', validateUserId(), (req, res) => {
     res.status(200).json(req.user)  
 });
 
-router.get('/:id/posts', validateUserId, async(req, res, next) => {
+router.get('/:id/posts', async(req, res, next) => {
   try {
     const posts = await userDb.getUserPosts(req.params.id)
     if (posts) {
       res.json(posts)
     } else {
-        res.status(404).json({ 
+        return res.status(404).json({ 
           message: "The post with the specified ID doen not exist.",
         })
     }
@@ -51,7 +51,7 @@ router.get('/:id/posts', validateUserId, async(req, res, next) => {
   }
 })          
 
-router.delete('/:id', validateUserId, async(req, res, next) => {
+router.delete('/:id', validateUserId(), async(req, res, next) => {
   try {
     const user = await userDb.remove(req.params.id)
     if(user > 0 ) {
@@ -66,7 +66,7 @@ router.delete('/:id', validateUserId, async(req, res, next) => {
   }
 })    
 
-router.put('/:id', validateUserId, validateUser, async(req, res, next) => {
+router.put('/:id', validateUserId(), validateUser, async(req, res, next) => {
   const changes = req.body;
   try {
     user = await userDb.update(req.params.id, changes)
